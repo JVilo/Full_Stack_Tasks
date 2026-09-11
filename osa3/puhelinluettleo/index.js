@@ -46,9 +46,6 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 app.use(express.static(path.join(__dirname, 'dist')))
 
 
-app.get('', (req, res) => {
-    res.sendFile(path.join(dirname, 'dist', 'index.html')) })
-
 app.get('/info', (request, response) => {
   const info = `
     <p>Phonebook has info for ${persons.length} people</p>
@@ -116,6 +113,12 @@ app.delete('/api/persons/:id', (request, response) => {
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
+
+// Serve index.html for any non-API route (SPA fallback)
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) return res.status(404).send({ error: 'unknown endpoint' })
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'))
+})
 
 app.use(unknownEndpoint)
 
