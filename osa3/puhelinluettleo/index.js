@@ -1,7 +1,6 @@
 const morgan = require('morgan')
 const express = require('express')
 const app = express()
-const path = require('path')
 
 let persons = [
     {
@@ -43,7 +42,7 @@ const requestLogger = (request, response, next) => {
 app.use(express.json())
 app.use(requestLogger)
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
-app.use(express.static(path.join(__dirname, 'dist')))
+app.use(express.static('dist'))
 
 
 app.get('/info', (request, response) => {
@@ -113,12 +112,6 @@ app.delete('/api/persons/:id', (request, response) => {
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
-
-// Serve index.html for any non-API route (SPA fallback)
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/api')) return res.status(404).send({ error: 'unknown endpoint' })
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'))
-})
 
 app.use(unknownEndpoint)
 
