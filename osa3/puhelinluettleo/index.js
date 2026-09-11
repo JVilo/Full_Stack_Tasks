@@ -46,6 +46,9 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 app.use(express.static(path.join(__dirname, 'dist')))
 
 
+app.get('', (req, res) => {
+    res.sendFile(path.join(dirname, 'dist', 'index.html')) })
+
 app.get('/info', (request, response) => {
   const info = `
     <p>Phonebook has info for ${persons.length} people</p>
