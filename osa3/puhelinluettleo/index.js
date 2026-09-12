@@ -44,15 +44,52 @@ app.get('/info', (request, response) => {
 
 app.get('/api/persons/:id', (request, response) => {
   const id = request.params.id
-  response.status(404).end()
+  Person.findById(id)
+    .then(person => {
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => {
+      response.status(500).send({ error: 'Failed to fetch person' })
+    })
 })
 
 app.post('/api/persons', (request, response) => {
-  response.status(501).end()
+  const body = request.body
+
+  if (!body.name || !body.number) {
+    return response.status(400).json({
+      error: 'name or number missing'
+    })
+  }
+
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+  })
+
+  person.save()
+    .then(savedPerson => {
+      response.json(savedPerson)
+    })
+    .catch(error => {
+      console.error(error)
+      response.status(500).json({ error: 'Failed to save person' })
+    })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-  response.status(204).end()
+  const id = request.params.id
+  Person.findByIdAndRemove(id)
+    .then(() => {
+      response.status(204).end()
+    })
+    .catch(error => {
+      response.status(500).send({ error: 'Failed to delete person' })
+    })
 })
 
 const unknownEndpoint = (request, response) => {
