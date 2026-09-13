@@ -90,7 +90,7 @@ const App = () => {
     }, 5000)
   }
 
-  const addPerson = (event) => {
+const addPerson = (event) => {
     event.preventDefault()
 
     const existingPerson = persons.find(p => p.name === newName)
@@ -114,18 +114,19 @@ const App = () => {
             showSuccess(`Updated ${returnedPerson.name}`)
           })
           .catch(error => {
-              console.error(`Failed to update ${existingPerson.name}`, error)
+            console.error(`Failed to update ${existingPerson.name}`, error)
 
-              if (error.response && error.response.status === 404) {
-                showError(`Information of ${existingPerson.name} has already been removed from the server`)
-
-                setPersons(prev =>
-                  prev.filter(person => person.id !== existingPerson.id)
-                )
-              } else {
-                showError('Updating the person failed')
-              }
-            })
+            if (error.response && error.response.status === 404) {
+              showError(`Information of ${existingPerson.name} has already been removed from the server`)
+              setPersons(prev =>
+                prev.filter(person => person.id !== existingPerson.id)
+              )
+            } else if (error.response && error.response.data.error) {
+              showError(error.response.data.error)
+            } else {
+              showError('Updating the person failed')
+            }
+          })
       }
       return
     }
@@ -145,7 +146,11 @@ const App = () => {
       })
       .catch(error => {
         console.error('Failed to save person:', error)
-        showError('Saving the person failed')
+        if (error.response && error.response.data.error) {
+          showError(error.response.data.error)
+        } else {
+          showError('Saving the person failed')
+        }
       })
   }
 
